@@ -1,0 +1,5 @@
+secret.json
+.vscode
+bin
+obj
+*.lock.json
