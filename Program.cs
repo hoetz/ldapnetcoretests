@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 using Novell.Directory.Ldap;
 
 namespace ConsoleApplication
@@ -7,9 +9,15 @@ namespace ConsoleApplication
     {
         public static void Main(string[] args)
         {
+
+            var config = new ConfigurationBuilder()
+                                .SetBasePath(Directory.GetCurrentDirectory())
+                                .AddJsonFile("secret.json")
+                                .Build();
+
             LdapConnection con = new LdapConnection();
             con.Connect("172.16.250.139", 389);
-            con.Bind("CN=Administrator,CN=Users,DC=flo,DC=loc", "sigma#01");
+            con.Bind("CN=Administrator,CN=Users,DC=flo,DC=loc", config["password"]);
 
             var searchBase = "CN=Users,DC=flo,DC=loc";
             var searchFilter = "(objectclass=*)";
@@ -17,7 +25,7 @@ namespace ConsoleApplication
             LdapSearchQueue queue = con.Search(searchBase,
                 LdapConnection.SCOPE_SUB,
                  searchFilter,
-                 new string[] {"sAMAccountName"},
+                 new string[] { "sAMAccountName" },
                  false,
                 (LdapSearchQueue)null,
                 (LdapSearchConstraints)null);
