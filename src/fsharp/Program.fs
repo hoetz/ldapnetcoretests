@@ -11,26 +11,26 @@ let main argv =
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("secret.json").Build()
     let password= (config.Item("password"))
+    let host= (config.Item("host"))
     
     let con = new LdapConnection()
     
-    con.Connect("172.16.250.139", 389);
+    con.Connect(host, 389);
     con.Bind("CN=Administrator,CN=Users,DC=flo,DC=loc", password);
     let searchBase = "CN=Users,DC=flo,DC=loc"
     let searchFilter = "(objectclass=*)"
-
-    let isValidLdapResult (r:LdapMessage) =
+    
+    let isNotNull (r:LdapMessage)=
         match r with
         | null -> false
-        | :? LdapSearchResult -> true
-        | _ -> false
+        | _ -> true
 
-    let processLdapResult (r:LdapSearchResult)=
-        let entry = r.Entry
-        System.Console.Out.WriteLine("\n" + entry.DN);
-        System.Console.Out.WriteLine("\tAttributes: ");
-                    
-
+    let processLdapResult (r:LdapMessage)=
+        match r with
+        | :? LdapSearchResult as s ->
+            let entry = s.Entry
+            printfn "\n%s" entry.DN
+        | _ -> ()
 
     let queue = con.Search(searchBase,
                     LdapConnection.SCOPE_SUB,
@@ -42,8 +42,7 @@ let main argv =
 
     let message _ = (queue.getResponse())
     Seq.initInfinite message
-       |> Seq.takeWhile isValidLdapResult
-       |> Seq.cast<LdapSearchResult>
+       |> Seq.takeWhile isNotNull
        |> Seq.iter processLdapResult 
 
     con.Disconnect()

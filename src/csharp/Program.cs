@@ -16,7 +16,7 @@ namespace ConsoleApplication
                                 .Build();
 
             LdapConnection con = new LdapConnection();
-            con.Connect("172.16.250.139", 389);
+            con.Connect(config["host"], 389);
             con.Bind("CN=Administrator,CN=Users,DC=flo,DC=loc", config["password"]);
 
             var searchBase = "CN=Users,DC=flo,DC=loc";
