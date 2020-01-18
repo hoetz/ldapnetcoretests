@@ -17,9 +17,9 @@ namespace ConsoleApplication
 
             LdapConnection con = new LdapConnection();
             con.Connect(config["host"], 389);
-            con.Bind("CN=Administrator,CN=Users,DC=flo,DC=loc", config["password"]);
+            con.Bind("CN=admin,dc=example,dc=org", config["password"]);
 
-            var searchBase = "CN=Users,DC=flo,DC=loc";
+            var searchBase = "dc=example,dc=org";
             var searchFilter = "(objectclass=*)";
 
             LdapSearchQueue queue = con.Search(searchBase,
